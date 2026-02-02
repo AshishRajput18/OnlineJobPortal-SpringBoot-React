@@ -12,7 +12,7 @@ const ViewEmployers = () => {
     try {
       const token = localStorage.getItem("token"); // if JWT used
       const response = await axios.get(
-        "http://localhost:8080/api/users/employers",
+        `${import.meta.env.VITE_API_URL}/api/users/employers`,
         {
           headers: {
             Authorization: token ? `Bearer ${token}` : "",

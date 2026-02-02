@@ -12,7 +12,7 @@ const AllJobs = () => {
 
   const fetchJobs = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/jobs/all");
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/all`);
       setJobs(res.data);
     } catch (err) {
       console.error("Error loading jobs", err);

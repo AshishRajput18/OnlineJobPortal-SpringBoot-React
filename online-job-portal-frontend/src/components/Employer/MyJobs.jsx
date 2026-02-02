@@ -23,7 +23,7 @@ const MyJobs = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`http://localhost:8080/api/jobs/my-jobs?employerId=${employerId}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/my-jobs?employerId=${employerId}`);
       setJobs(response.data || []);
     } catch (err) {
       console.error('Error fetching jobs:', err);
@@ -43,7 +43,7 @@ const MyJobs = () => {
     }
 
     try {
-      const res = await axios.delete(`http://localhost:8080/api/jobs/delete/${jobId}`);
+      const res = await axios.delete(`${import.meta.env.VITE_API_URL}/api/jobs/delete/${jobId}`);
       alert(res.data || 'Job deleted successfully!');
       setJobs(prev => prev.filter(job => job.id !== jobId));
     } catch (err) {

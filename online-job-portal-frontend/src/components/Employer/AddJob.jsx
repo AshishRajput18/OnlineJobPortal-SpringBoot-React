@@ -24,7 +24,7 @@ const AddJob = () => {
   // ── FETCH CATEGORIES ─────────────────────────────
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/category/all")
+      .get(`${import.meta.env.VITE_API_URL}/api/category/all`)
       .then((res) => setCategories(res.data))
       .catch((err) => console.error("Category Fetch Error:", err));
   }, []);
@@ -75,7 +75,7 @@ const AddJob = () => {
       }
 
       await axios.post(
-        `http://localhost:8080/api/jobs/add?categoryId=${categoryId}&employerId=${employerId}`,
+        `${import.meta.env.VITE_API_URL}/api/jobs/add?categoryId=${categoryId}&employerId=${employerId}`,
         jobData
       );
 

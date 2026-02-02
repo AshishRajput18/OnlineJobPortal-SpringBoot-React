@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_BASE = "http://localhost:8080/api/users/employee";
+const API_BASE = `${import.meta.env.VITE_API_URL}/api/users/employee`;
 
 const UpdateProfileForm = () => {
   const navigate = useNavigate();

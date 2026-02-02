@@ -19,7 +19,7 @@ const JobApplicationsId = () => {
       setError(null);
 
       const res = await axios.get(
-        `http://localhost:8080/api/applications/job/${jobId}`
+        `${import.meta.env.VITE_API_URL}/api/applications/job/${jobId}`
       );
 
       setApplications(res.data || []);

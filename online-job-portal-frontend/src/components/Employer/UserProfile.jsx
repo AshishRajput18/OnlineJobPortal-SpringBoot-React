@@ -19,7 +19,7 @@ const UserProfile = () => {
     const fetchProfile = async () => {
       try {
         // Adjust endpoint to match your backend (two common patterns shown)
-        const res = await axios.get(`http://localhost:8080/api/users/employee/${employeeId}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}`);
         // If your backend uses query param → use this instead:
         // const res = await axios.get(`http://localhost:8080/api/users/employee?employeeId=${employeeId}`);
 

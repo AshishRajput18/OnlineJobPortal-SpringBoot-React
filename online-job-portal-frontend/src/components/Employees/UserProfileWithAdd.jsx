@@ -42,7 +42,7 @@ const UserProfileWithAdd = () => {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/users/employee/${employeeId}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}`);
       console.log("Backend profile data:", res.data);
       setProfile(res.data);
     } catch (err) {
@@ -73,7 +73,7 @@ const UserProfileWithAdd = () => {
     if (!window.confirm("Delete this qualification?")) return;
     try {
       await axios.delete(
-        `http://localhost:8080/api/users/employee/${employeeId}/qualification/${qualId}`
+        `${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}/qualification/${qualId}`
       );
       await fetchProfile();
       alert("Qualification deleted");
@@ -87,7 +87,7 @@ const UserProfileWithAdd = () => {
     if (!window.confirm("Delete this skill?")) return;
     try {
       await axios.delete(
-        `http://localhost:8080/api/users/employee/${employeeId}/skill/${skillId}`
+        `${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}/skill/${skillId}`
       );
       await fetchProfile();
       alert("Skill deleted");
@@ -101,7 +101,7 @@ const UserProfileWithAdd = () => {
     if (!window.confirm("Delete this work experience?")) return;
     try {
       await axios.delete(
-        `http://localhost:8080/api/users/employee/${employeeId}/work/${workId}`
+        `${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}/work/${workId}`
       );
       await fetchProfile();
       alert("Work experience deleted");
@@ -166,12 +166,12 @@ const UserProfileWithAdd = () => {
       if (editingQualIndex !== null) {
         const qualId = profile.qualifications[editingQualIndex].id;
         await axios.put(
-          `http://localhost:8080/api/users/employee/${employeeId}/qualification/${qualId}`,
+          `${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}/qualification/${qualId}`,
           payload
         );
       } else {
         await axios.post(
-          `http://localhost:8080/api/users/employee/${employeeId}/qualification`,
+          `${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}/qualification`,
           { qualifications: [payload] }
         );
       }
@@ -214,12 +214,12 @@ const UserProfileWithAdd = () => {
       if (editingSkillIndex !== null) {
         const skillId = profile.skills[editingSkillIndex].id;
         await axios.put(
-          `http://localhost:8080/api/users/employee/${employeeId}/skill/${skillId}`,
+          `${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}/skill/${skillId}`,
           payload
         );
       } else {
         await axios.post(
-          `http://localhost:8080/api/users/employee/${employeeId}/skill`,
+          `${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}/skill`,
           { skills: [payload] }
         );
       }
@@ -271,12 +271,12 @@ const UserProfileWithAdd = () => {
       if (editingWorkIndex !== null) {
         const workId = profile.workExperience[editingWorkIndex].id;
         await axios.put(
-          `http://localhost:8080/api/users/employee/${employeeId}/work/${workId}`,
+          `${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}/work/${workId}`,
           payload
         );
       } else {
         await axios.post(
-          `http://localhost:8080/api/users/employee/${employeeId}/work`,
+          `${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}/work`,
           { workExperience: [payload] }
         );
       }

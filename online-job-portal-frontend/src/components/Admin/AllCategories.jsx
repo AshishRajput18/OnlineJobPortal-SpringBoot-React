@@ -13,7 +13,7 @@ const AllCategories = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/api/category/all');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/category/all`);
       setCategories(res.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -28,7 +28,7 @@ const AllCategories = () => {
   // DELETE
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/category/delete/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/category/delete/${id}`);
       alert('Category deleted');
       fetchCategories(); // refresh list
     } catch (error) {

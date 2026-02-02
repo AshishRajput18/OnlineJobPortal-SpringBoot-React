@@ -11,7 +11,7 @@ const ViewEmployees = () => {
   const fetchEmployees = async () => {
     try {
       const response = await axios.get(
-        'http://localhost:8080/api/users/employees'
+        `${import.meta.env.VITE_API_URL}/api/users/employees`
       );
       setEmployees(response.data);
     } catch (error) {

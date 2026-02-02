@@ -24,7 +24,7 @@ const AppliedJobs = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get(`http://localhost:8080/api/applications/employee/${employeeId}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/applications/employee/${employeeId}`);
       setApplications(res.data || []);
     } catch (err) {
       console.error("Failed to load applications:", err);
@@ -39,7 +39,7 @@ const AppliedJobs = () => {
     if (!window.confirm("Are you sure you want to cancel this application?")) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/applications/${applicationId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/applications/${applicationId}`);
       alert("Application cancelled successfully!");
       fetchApplications(); // refresh
       setSelectedApplication(null);

@@ -11,7 +11,7 @@ const EmployeeProfile = () => {
     if (!employeeId) return;
 
     axios
-      .get(`http://localhost:8080/api/users/employee/${employeeId}`)
+      .get(`${import.meta.env.VITE_API_URL}/api/users/employee/${employeeId}`)
       .then((res) => setProfile(res.data))
       .catch((err) => console.error("Error fetching profile:", err));
   }, []);

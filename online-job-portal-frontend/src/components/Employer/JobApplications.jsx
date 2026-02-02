@@ -28,7 +28,7 @@ const JobApplications = () => {
       setLoading(true);
       setError(null);
       const res = await axios.get(
-        `http://localhost:8080/api/applications/employer/${employerId}`
+        `${import.meta.env.VITE_API_URL}/api/applications/employer/${employerId}`
       );
       setApplications(res.data || []);
     } catch (err) {
@@ -63,7 +63,7 @@ const JobApplications = () => {
       const app = applications[selectedIndex];
 
       await axios.put(
-        `http://localhost:8080/api/applications/${app.applicationId}/status`,
+        `${import.meta.env.VITE_API_URL}/api/applications/${app.applicationId}/status`,
         { status: newStatus }
       );
 

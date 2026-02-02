@@ -12,7 +12,7 @@ const AllApplications = () => {
   const fetchApplications = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8080/api/applications/all"
+        `${import.meta.env.VITE_API_URL}/api/applications/all`
       );
 
       if (Array.isArray(response.data)) {

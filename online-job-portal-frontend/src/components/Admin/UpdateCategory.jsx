@@ -16,7 +16,7 @@ const UpdateCategory = () => {
     const fetchCategory = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/category/${id}`
+          `${import.meta.env.VITE_API_URL}/api/category/${id}`
         );
 
         setCategoryData({
@@ -45,7 +45,7 @@ const UpdateCategory = () => {
 
     try {
       await axios.put(
-        `http://localhost:8080/api/category/update/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/category/update/${id}`,
         categoryData
       );
 

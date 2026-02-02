@@ -27,7 +27,7 @@ const JobsGrid = () => {
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:8080/api/jobs/all");
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/all`);
       setJobsData(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error("Error loading jobs:", err);
@@ -39,7 +39,7 @@ const JobsGrid = () => {
 
   const fetchAppliedJobs = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/applications/employee/${employeeId}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/applications/employee/${employeeId}`);
       const appliedJobIds = res.data.map(app => app.jobId);
       setAppliedJobs(new Set(appliedJobIds));
     } catch (err) {
@@ -78,7 +78,7 @@ const JobsGrid = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:8080/api/applications/apply",
+        `${import.meta.env.VITE_API_URL}/api/applications/apply`,
         null,
         {
           params: {

@@ -27,7 +27,7 @@ const EmployerForm = () => {
 
     try {
       await axios.post(
-        'http://localhost:8080/api/register/employer', // ✅ Correct endpoint
+        `${import.meta.env.VITE_API_URL}/api/register/employer`, // ✅ Correct endpoint
         formData
       );
       alert('Employer Registered Successfully');

@@ -14,7 +14,7 @@ const AllApplicationsId = () => {
   const fetchApplications = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/applications/job/${jobId}`
+        `${import.meta.env.VITE_API_URL}/api/applications/job/${jobId}`
       );
       setApplications(res.data || []);
     } catch (error) {

@@ -19,7 +19,7 @@ const RegisterAdmin = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:8080/api/register/admin',
+        `${import.meta.env.VITE_API_URL}/api/register/admin`,
         adminData
       );
 

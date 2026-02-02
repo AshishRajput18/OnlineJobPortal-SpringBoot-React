@@ -2,6 +2,7 @@ package com.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,7 +29,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/**","/api/auth/**", "/api/register/**","/api/category/**","/api/users/**","/api/jobs/**","/api/applications/**").permitAll()
-                .requestMatchers("/api/jobs/add/**").hasRole("EMPLOYER")
+                .requestMatchers(HttpMethod.POST, "/api/jobs/add/**").hasRole("EMPLOYER")
+
                 
                 .anyRequest().authenticated()
             )

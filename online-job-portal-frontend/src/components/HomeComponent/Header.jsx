@@ -23,7 +23,7 @@ const Header = () => {
     localStorage.removeItem("employeeId");
     localStorage.removeItem("employerId");
     localStorage.removeItem("userName");
-    localStorage.clear();
+    
     navigate("/"); // redirect to home
     window.location.reload(); // refresh to reset state
   };

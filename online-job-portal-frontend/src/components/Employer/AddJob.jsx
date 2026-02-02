@@ -15,13 +15,13 @@ const AddJob = () => {
     city: "",
     state: "",
     country: "",
-    pincode: "",
     logo: "",
+    applicationCount: 0,
   });
 
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // ── FETCH CATEGORIES ─────────────────────────────
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/category/all`)
@@ -29,7 +29,6 @@ const AddJob = () => {
       .catch((err) => console.error("Category Fetch Error:", err));
   }, []);
 
-  // ── Convert file to Base64 ────────────────────────
   const convertToBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -38,7 +37,6 @@ const AddJob = () => {
       reader.onerror = (error) => reject(error);
     });
 
-  // ── Handle Input Changes ─────────────────────────
   const handleChange = async (e) => {
     const { name, value, files } = e.target;
 
@@ -55,7 +53,6 @@ const AddJob = () => {
     }
   };
 
-  // ── Submit Form ──────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -64,24 +61,30 @@ const AddJob = () => {
       return;
     }
 
+    const employerId = localStorage.getItem("employerId");
+    if (!employerId) {
+      alert("Employer not logged in!");
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const { categoryId, ...jobData } = formData;
 
-      // Get employerId from localStorage
-      const employerId = localStorage.getItem("employerId");
-      if (!employerId) {
-        alert("Employer not logged in!");
-        return;
-      }
-
-      await axios.post(
+      const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/jobs/add?categoryId=${categoryId}&employerId=${employerId}`,
-        jobData
+        jobData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
+      console.log("Job posted successfully:", response.data);
       alert("Job Posted Successfully!");
 
-      // Reset form
       setFormData({
         jobTitle: "",
         companyName: "",
@@ -95,14 +98,18 @@ const AddJob = () => {
         city: "",
         state: "",
         country: "",
-        pincode: "",
         logo: "",
+        applicationCount: 0,
       });
     } catch (error) {
       console.error("Error posting job:", error);
+      console.error("Error response:", error.response?.data);
       alert(
-        "Failed to post job. Make sure you are logged in as an employer."
+        error.response?.data?.message || 
+        "Failed to post job. Please check all fields and try again."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -111,59 +118,61 @@ const AddJob = () => {
       <div style={headerStyle}>Add Job</div>
 
       <form onSubmit={handleSubmit}>
-        {/* Row 1: Job Title & Company Name */}
         <div style={rowStyle}>
           <div style={groupStyle}>
-            <label style={labelStyle}>Job Title</label>
+            <label style={labelStyle}>Job Title *</label>
             <input
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleChange}
               style={inputStyle}
+              required
             />
           </div>
           <div style={groupStyle}>
-            <label style={labelStyle}>Company Name</label>
+            <label style={labelStyle}>Company Name *</label>
             <input
               name="companyName"
               value={formData.companyName}
               onChange={handleChange}
               style={inputStyle}
+              required
             />
           </div>
         </div>
 
-        {/* Row 2: Job Description & Skills */}
         <div style={rowStyle}>
           <div style={groupStyle}>
-            <label style={labelStyle}>Job Description</label>
+            <label style={labelStyle}>Job Description *</label>
             <textarea
               name="jobDescription"
               value={formData.jobDescription}
               onChange={handleChange}
               style={textareaStyle}
+              required
             />
           </div>
           <div style={groupStyle}>
-            <label style={labelStyle}>Skills Required</label>
+            <label style={labelStyle}>Skills Required *</label>
             <input
               name="skills"
               value={formData.skills}
               onChange={handleChange}
               style={textareaStyle}
+              required
             />
           </div>
         </div>
 
-        {/* Row 3: Category & Job Type */}
         <div style={rowStyle}>
           <div style={groupStyle}>
-            <label style={labelStyle}>Job Category</label>
+            <label style={labelStyle}>Job Category *</label>
             <select
               name="categoryId"
               value={formData.categoryId}
               onChange={handleChange}
               style={inputStyle}
+              required
             >
               <option value="">Select Category</option>
               {categories.map((cat) => (
@@ -174,12 +183,13 @@ const AddJob = () => {
             </select>
           </div>
           <div style={groupStyle}>
-            <label style={labelStyle}>Job Type</label>
+            <label style={labelStyle}>Job Type *</label>
             <select
               name="type"
               value={formData.type}
               onChange={handleChange}
               style={inputStyle}
+              required
             >
               <option value="">Select Type</option>
               <option>Full Time</option>
@@ -189,15 +199,15 @@ const AddJob = () => {
           </div>
         </div>
 
-        {/* Row 4: Salary & Experience */}
         <div style={rowStyle}>
           <div style={groupStyle}>
-            <label style={labelStyle}>Salary Range</label>
+            <label style={labelStyle}>Salary Range *</label>
             <select
               name="salary"
               value={formData.salary}
               onChange={handleChange}
               style={inputStyle}
+              required
             >
               <option value="">Select Salary</option>
               <option>3-6 L</option>
@@ -207,12 +217,13 @@ const AddJob = () => {
             </select>
           </div>
           <div style={groupStyle}>
-            <label style={labelStyle}>Experience Required</label>
+            <label style={labelStyle}>Experience Required *</label>
             <select
               name="experience"
               value={formData.experience}
               onChange={handleChange}
               style={inputStyle}
+              required
             >
               <option value="">Select Experience</option>
               <option>0-1 Years</option>
@@ -223,7 +234,6 @@ const AddJob = () => {
           </div>
         </div>
 
-        {/* Row 5: Street & City */}
         <div style={rowStyle}>
           <div style={groupStyle}>
             <label style={labelStyle}>Street</label>
@@ -235,17 +245,17 @@ const AddJob = () => {
             />
           </div>
           <div style={groupStyle}>
-            <label style={labelStyle}>City</label>
+            <label style={labelStyle}>City *</label>
             <input
               name="city"
               value={formData.city}
               onChange={handleChange}
               style={inputStyle}
+              required
             />
           </div>
         </div>
 
-        {/* Row 6: State & Pincode */}
         <div style={rowStyle}>
           <div style={groupStyle}>
             <label style={labelStyle}>State</label>
@@ -257,27 +267,18 @@ const AddJob = () => {
             />
           </div>
           <div style={groupStyle}>
-            <label style={labelStyle}>Pincode</label>
-            <input
-              name="pincode"
-              value={formData.pincode}
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          </div>
-        </div>
-
-        {/* Row 7: Country & Logo */}
-        <div style={rowStyle}>
-          <div style={groupStyle}>
-            <label style={labelStyle}>Country</label>
+            <label style={labelStyle}>Country *</label>
             <input
               name="country"
               value={formData.country}
               onChange={handleChange}
               style={inputStyle}
+              required
             />
           </div>
+        </div>
+
+        <div style={rowStyle}>
           <div style={groupStyle}>
             <label style={labelStyle}>Company Logo</label>
             <input
@@ -285,19 +286,23 @@ const AddJob = () => {
               name="logo"
               onChange={handleChange}
               style={inputStyle}
+              accept="image/*"
             />
           </div>
         </div>
 
-        <button type="submit" style={buttonStyle}>
-          Post Job
+        <button 
+          type="submit" 
+          style={buttonStyle}
+          disabled={loading}
+        >
+          {loading ? "Posting..." : "Post Job"}
         </button>
       </form>
     </div>
   );
 };
 
-/* ── STYLES ── */
 const containerStyle = {
   maxWidth: "800px",
   margin: "40px auto",
@@ -307,6 +312,7 @@ const containerStyle = {
   backgroundColor: "#FFF9E6",
   border: "1px solid #ff69b4",
 };
+
 const headerStyle = {
   backgroundColor: "#ff69b4",
   color: "white",
@@ -317,11 +323,38 @@ const headerStyle = {
   fontWeight: "bold",
   fontSize: "18px",
 };
-const rowStyle = { display: "flex", gap: "20px", marginBottom: "15px" };
-const groupStyle = { flex: 1 };
-const labelStyle = { fontWeight: "bold", fontSize: "13px", marginBottom: "5px" };
-const inputStyle = { width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #ccc" };
-const textareaStyle = { ...inputStyle, minHeight: "80px" };
+
+const rowStyle = { 
+  display: "flex", 
+  gap: "20px", 
+  marginBottom: "15px" 
+};
+
+const groupStyle = { 
+  flex: 1 
+};
+
+const labelStyle = { 
+  fontWeight: "bold", 
+  fontSize: "13px", 
+  marginBottom: "5px",
+  display: "block"
+};
+
+const inputStyle = { 
+  width: "100%", 
+  padding: "8px", 
+  borderRadius: "6px", 
+  border: "1px solid #ccc",
+  boxSizing: "border-box"
+};
+
+const textareaStyle = { 
+  ...inputStyle, 
+  minHeight: "80px",
+  resize: "vertical"
+};
+
 const buttonStyle = {
   width: "100%",
   padding: "12px",
@@ -331,6 +364,8 @@ const buttonStyle = {
   borderRadius: "6px",
   fontSize: "16px",
   fontWeight: "600",
+  cursor: "pointer",
+  transition: "opacity 0.3s",
 };
 
 export default AddJob;

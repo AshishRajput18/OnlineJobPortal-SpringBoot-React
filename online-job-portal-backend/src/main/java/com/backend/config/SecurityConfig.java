@@ -36,7 +36,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                              "/api/jobs/**", "/api/applications/**").permitAll()
             
             // Restricted endpoints
-            .requestMatchers("/api/jobs/add/**").hasRole("EMPLOYER")
+            .requestMatchers("/api/jobs/add/**").permitAll()
+
             
             // Any other request must be authenticated
             .anyRequest().authenticated()

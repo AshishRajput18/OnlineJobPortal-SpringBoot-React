@@ -11,7 +11,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
-
 @Configuration
 public class SecurityConfig {
 
@@ -20,52 +19,59 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-   @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-    http
-        .cors(cors -> {})  // enable CORS
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-            // Allow OPTIONS preflight for all endpoints
-            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-            
-            // Public endpoints
-            .requestMatchers("/api/**", "/api/auth/**", "/api/register/**",
-                             "/api/category/**", "/api/users/**",
-                             "/api/jobs/**", "/api/applications/**").permitAll()
-            
-            // Restricted endpoints
-            .requestMatchers("/api/jobs/add/**").permitAll()
+        http
+            .cors(cors -> {})
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        org.springframework.http.HttpMethod.OPTIONS, "/**"
+                ).permitAll()
 
-            
-            // Any other request must be authenticated
-            .anyRequest().authenticated()
-        )
-        .formLogin(form -> form.disable())
-        .httpBasic(httpBasic -> httpBasic.disable());
+                .requestMatchers(
+                        "/api/**",
+                        "/api/auth/**",
+                        "/api/register/**",
+                        "/api/category/**",
+                        "/api/users/**",
+                        "/api/jobs/**",
+                        "/api/applications/**"
+                ).permitAll()
 
-    return http.build();
-}
+                // FIX HERE
+                .requestMatchers("/api/jobs/add/**")
+                .hasRole("EMPLOYER")
 
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form.disable())
+            .httpBasic(httpBasic -> httpBasic.disable());
 
-    // CORS CONFIG
-   @Bean
-public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
+        return http.build();
+    }
 
-    configuration.setAllowedOriginPatterns(List.of(
-        "http://localhost:5173",
-        "https://*.vercel.app"
-    ));
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
 
-    configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
-    configuration.setAllowedHeaders(List.of("*"));
-    configuration.setAllowCredentials(true);
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173",
+                "https://*.vercel.app"
+        ));
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    return source;
-}
+        configuration.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        );
 
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }

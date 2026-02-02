@@ -53,15 +53,16 @@ public class User {
     private String bio;
     
     
-    @Column(name = "avatar", columnDefinition = "LONGTEXT")
-    private String avatar;
+    @Column(name = "avatar", columnDefinition = "TEXT")
+private String avatar;
+
 
 
 
     private String github;
     private String linkedin;
     private String website;
-    @Column(name = "resume", columnDefinition = "LONGTEXT")
+    @Column(name = "resume", columnDefinition = "TEXT")
     private String resume;
 
 

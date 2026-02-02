@@ -31,7 +31,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
             
             // Public endpoints
-            .requestMatchers("/api/auth/**", "/api/register/**",
+            .requestMatchers("/api/**", "/api/auth/**", "/api/register/**",
                              "/api/category/**", "/api/users/**",
                              "/api/jobs/**", "/api/applications/**").permitAll()
             

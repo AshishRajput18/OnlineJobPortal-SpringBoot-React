@@ -2,6 +2,7 @@ package com.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,11 +28,25 @@ public class SecurityConfig {
             .cors(cors -> {})
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**","/api/auth/**", "/api/register/**",
-                                 "/api/category/**","/api/users/**",
-                                 "/api/jobs/**","/api/applications/**").permitAll()
-                .requestMatchers("/api/jobs/add/**").permitAll()
 
+                // Allow preflight requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // Public APIs
+                .requestMatchers(
+                        "/api/**",
+                        "/api/auth/**",
+                        "/api/register/**",
+                        "/api/category/**",
+                        "/api/users/**",
+                        "/api/jobs/**",
+                        "/api/applications/**"
+                ).permitAll()
+
+                // Explicit job add access
+                .requestMatchers("/api/jobs/add").permitAll()
+
+                // Everything else authenticated
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())
@@ -45,18 +60,18 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Added Vercel support
         configuration.setAllowedOriginPatterns(List.of(
-            "http://localhost:5173",
-            "https://*.vercel.app"
+                "http://localhost:5173",
+                "https://*.vercel.app"
         ));
 
-        configuration.setAllowedMethods(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 }

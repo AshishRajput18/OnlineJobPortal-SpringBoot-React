@@ -39,19 +39,30 @@ public class SecurityConfig {
     }
 
     // CORS CONFIG
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
- configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:5173",
-                "https://*.vercel.app"
-        ));
-        configuration.setAllowedMethods(List.of("*"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+   @Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    // Allow localhost (dev) and any Vercel deployment (prod)
+    configuration.setAllowedOriginPatterns(List.of(
+            "http://localhost:5173",
+            "https://*.vercel.app"
+    ));
+
+    // Allowed HTTP methods
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+    // Allow all headers
+    configuration.setAllowedHeaders(List.of("*"));
+
+    // Allow sending cookies or auth headers
+    configuration.setAllowCredentials(true);
+
+    // Apply this CORS config to all endpoints
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+
+    return source;
+}
+
 }

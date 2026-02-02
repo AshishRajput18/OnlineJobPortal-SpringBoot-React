@@ -37,7 +37,7 @@ public class Job {
     private String country;
     private String pincode;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String logo;
 
     private LocalDateTime postedDate;

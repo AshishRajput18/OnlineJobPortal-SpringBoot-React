@@ -30,7 +30,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/**","/api/auth/**", "/api/register/**",
                                  "/api/category/**","/api/users/**",
                                  "/api/jobs/**","/api/applications/**").permitAll()
-                .requestMatchers("/api/jobs/add/**").hasRole("EMPLOYER")
+                .requestMatchers("/api/jobs/add/**").permitAll()
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())

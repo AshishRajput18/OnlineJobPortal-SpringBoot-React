@@ -12,17 +12,24 @@ const JobsGrid = () => {
   const [applyingJobId, setApplyingJobId] = useState(null);
   const [appliedJobs, setAppliedJobs] = useState(new Set());
 
-  // Get login information from localStorage
+  // Responsive detection
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
   const employeeId = localStorage.getItem("employeeId");
-  const role = localStorage.getItem("role"); // expected values: "employee", "employer", "admin"
+  const role = localStorage.getItem("role");
 
   useEffect(() => {
     fetchJobs();
-    // Only fetch applied jobs if the user is an employee
     if (employeeId && role === "employee") {
       fetchAppliedJobs();
     }
   }, [employeeId, role]);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchJobs = async () => {
     try {
@@ -44,18 +51,15 @@ const JobsGrid = () => {
       setAppliedJobs(new Set(appliedJobIds));
     } catch (err) {
       console.error("Failed to load applied jobs status:", err);
-      // Don't block UI — just proceed without pre-check
     }
   };
 
   const handleApply = async (job) => {
-    // 1. Not logged in at all
     if (!employeeId && !role) {
       alert("Please login first to apply for jobs!");
       return;
     }
 
-    // 2. Logged in but NOT an employee
     if (role !== "employee") {
       alert(
         "Only employees can apply for jobs.\n\n" +
@@ -65,13 +69,11 @@ const JobsGrid = () => {
       return;
     }
 
-    // 3. Already applied (only checked for employees)
     if (appliedJobs.has(job.id)) {
       alert("You have already applied for this job!");
       return;
     }
 
-    // 4. Confirm
     if (!window.confirm(`Apply for "${job.jobTitle || job.title || 'this job'}"?`)) return;
 
     setApplyingJobId(job.id);
@@ -88,15 +90,14 @@ const JobsGrid = () => {
         }
       );
 
-      alert(res.data); // e.g. "Application submitted successfully!"
+      alert(res.data);
 
-      if (res.data.toLowerCase().includes("submitted") || res.data.toLowerCase().includes("success")) {
-        // Update local state so button disables immediately
+      if (
+        res.data.toLowerCase().includes("submitted") ||
+        res.data.toLowerCase().includes("success")
+      ) {
         setAppliedJobs(prev => new Set([...prev, job.id]));
-
-        setTimeout(() => {
-          navigate("/applied-jobs");
-        }, 1200);
+        setTimeout(() => navigate("/applied-jobs"), 1200);
       }
     } catch (err) {
       console.error("Apply failed:", err);
@@ -115,108 +116,223 @@ const JobsGrid = () => {
       (job.category || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) return <div style={{ textAlign: "center", padding: "100px" }}>Loading jobs...</div>;
-  if (error) return <div style={{ color: "red", textAlign: "center", padding: "100px" }}>{error}</div>;
+  if (loading)
+    return <div style={{ textAlign: "center", padding: "100px" }}>Loading jobs...</div>;
+
+  if (error)
+    return (
+      <div style={{ color: "red", textAlign: "center", padding: "100px" }}>
+        {error}
+      </div>
+    );
 
   return (
-    <section style={{ backgroundColor: '#FFF9E6', padding: '40px 20px 80px 20px' }}>
-      <h2 style={{ textAlign: 'center', fontSize: '32px', color: '#ff69b4', marginBottom: '24px', fontWeight: '700' }}>
+    <section
+      style={{
+        backgroundColor: "#FFF9E6",
+        padding: isMobile ? "20px 12px 60px" : "40px 20px 80px",
+      }}
+    >
+      <h2
+        style={{
+          textAlign: "center",
+          fontSize: isMobile ? "22px" : "32px",
+          color: "#ff69b4",
+          marginBottom: "24px",
+          fontWeight: "700",
+        }}
+      >
         Search Jobs here...!!!
       </h2>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto 40px', background: 'white', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', border: '2px solid #ffe4e1' }}>
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto 40px",
+          background: "white",
+          padding: isMobile ? "16px" : "24px",
+          borderRadius: "16px",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+          border: "2px solid #ffe4e1",
+        }}
+      >
         <input
           type="text"
           placeholder="Search by job title or category..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '100%', padding: '14px', fontSize: '16px', border: '2px solid #ff69b4', borderRadius: '12px' }}
+          style={{
+            width: "100%",
+            padding: isMobile ? "12px" : "14px",
+            fontSize: isMobile ? "14px" : "16px",
+            border: "2px solid #ff69b4",
+            borderRadius: "12px",
+          }}
         />
       </div>
 
       {selectedJob ? (
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <button
             onClick={() => setSelectedJob(null)}
-            style={{ background: '#f0f0f0', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', marginBottom: '24px', fontSize: '15px' }}
+            style={{
+              background: "#f0f0f0",
+              border: "none",
+              padding: "10px 20px",
+              borderRadius: "10px",
+              cursor: "pointer",
+              fontWeight: "600",
+              marginBottom: "24px",
+              fontSize: "15px",
+            }}
           >
             ← Back to Job Listings
           </button>
 
-          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 6px 20px rgba(0,0,0,0.08)', border: '2px solid #ffe4e1', marginBottom: '32px', display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
-            <div style={{ flex: 1, minWidth: '320px' }}>
-              <h3 style={{ color: '#ff69b4', margin: '0 0 16px 0', fontSize: '22px' }}>Company Details</h3>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+          <div
+            style={{
+              background: "white",
+              borderRadius: "16px",
+              padding: isMobile ? "18px" : "28px",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+              border: "2px solid #ffe4e1",
+              marginBottom: "32px",
+              display: "flex",
+              flexDirection: isMobile ? "column" : "row",
+              flexWrap: "wrap",
+              gap: "40px",
+            }}
+          >
+            <div style={{ flex: 1, minWidth: "320px" }}>
+              <h3 style={{ color: "#ff69b4", marginBottom: "16px" }}>
+                Company Details
+              </h3>
+              <div style={{ display: "flex", alignItems: "center" }}>
                 <img
-                  src={selectedJob.companyLogo || selectedJob.logo || 'https://via.placeholder.com/60'}
+                  src={
+                    selectedJob.companyLogo ||
+                    selectedJob.logo ||
+                    "https://via.placeholder.com/60"
+                  }
                   alt="Company Logo"
-                  style={{ width: 60, marginRight: 20, borderRadius: '8px' }}
+                  style={{
+                    width: 60,
+                    marginRight: 20,
+                    borderRadius: "8px",
+                  }}
                 />
                 <div>
-                  <h4 style={{ margin: 0, fontSize: '22px' }}>
-                    {selectedJob.companyName || selectedJob.company || 'Company Name'}
+                  <h4 style={{ margin: 0 }}>
+                    {selectedJob.companyName ||
+                      selectedJob.company ||
+                      "Company Name"}
                   </h4>
-                  <p style={{ margin: '6px 0 0 0', color: '#444', fontSize: '15px' }}>
-                    {selectedJob.location || selectedJob.companyAddress || 'Location not specified'}
+                  <p style={{ margin: "6px 0 0", color: "#444" }}>
+                    {selectedJob.location ||
+                      selectedJob.companyAddress ||
+                      "Location not specified"}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div style={{ flex: 1, minWidth: '320px' }}>
-              <h3 style={{ color: '#ff69b4', margin: '0 0 16px 0', fontSize: '22px' }}>Job Details</h3>
-              <div style={{ fontSize: '15px', lineHeight: 1.6 }}>
-                <p><strong>Title:</strong> {selectedJob.jobTitle || selectedJob.title || '—'}</p>
-                <p><strong>Category:</strong> {selectedJob.category || selectedJob.jobCategory || '—'}</p>
-                <p><strong>Type:</strong> {selectedJob.type || '—'}</p>
-                <p><strong>Salary:</strong> {selectedJob.salary || 'Not disclosed'}</p>
-                <p><strong>Experience:</strong> {selectedJob.experience || selectedJob.exp || 'Not specified'}</p>
+            <div style={{ flex: 1, minWidth: "320px" }}>
+              <h3 style={{ color: "#ff69b4", marginBottom: "16px" }}>
+                Job Details
+              </h3>
+              <div style={{ lineHeight: 1.6 }}>
+                <p><strong>Title:</strong> {selectedJob.jobTitle || selectedJob.title || "—"}</p>
+                <p><strong>Category:</strong> {selectedJob.category || selectedJob.jobCategory || "—"}</p>
+                <p><strong>Type:</strong> {selectedJob.type || "—"}</p>
+                <p><strong>Salary:</strong> {selectedJob.salary || "Not disclosed"}</p>
+                <p><strong>Experience:</strong> {selectedJob.experience || selectedJob.exp || "Not specified"}</p>
               </div>
             </div>
           </div>
 
-          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 6px 20px rgba(0,0,0,0.08)', border: '2px solid #ffe4e1' }}>
-            <h3 style={{ color: '#ff69b4', margin: '0 0 24px 0', fontSize: '24px' }}>Description & Requirements</h3>
-            <p style={{ whiteSpace: 'pre-line', lineHeight: 1.6 }}>
-              {selectedJob.jobDescription || 'No description available.'}
+          <div
+            style={{
+              background: "white",
+              borderRadius: "16px",
+              padding: isMobile ? "18px" : "28px",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+              border: "2px solid #ffe4e1",
+            }}
+          >
+            <h3 style={{ color: "#ff69b4", marginBottom: "24px" }}>
+              Description & Requirements
+            </h3>
+
+            <p style={{ whiteSpace: "pre-line", lineHeight: 1.6 }}>
+              {selectedJob.jobDescription || "No description available."}
             </p>
 
-            <div style={{ marginTop: '24px' }}>
+            <div style={{ marginTop: "24px" }}>
               <strong>Required Skills:</strong>
-              <p>{selectedJob.skills || selectedJob.requiredSkills || "Not specified"}</p>
+              <p>
+                {selectedJob.skills ||
+                  selectedJob.requiredSkills ||
+                  "Not specified"}
+              </p>
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: '40px' }}>
+            <div style={{ textAlign: "center", marginTop: "40px" }}>
               <button
                 onClick={() => handleApply(selectedJob)}
-                disabled={applyingJobId === selectedJob.id || isAlreadyApplied(selectedJob.id)}
+                disabled={
+                  applyingJobId === selectedJob.id ||
+                  isAlreadyApplied(selectedJob.id)
+                }
                 style={{
-                  backgroundColor:
-                    isAlreadyApplied(selectedJob.id) ? '#6c757d' :
-                    applyingJobId === selectedJob.id ? '#ccc' : '#ff69b4',
-                  color: 'white',
-                  border: 'none',
-                  padding: '16px 48px',
-                  borderRadius: '12px',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  cursor: (applyingJobId === selectedJob.id || isAlreadyApplied(selectedJob.id)) ? 'not-allowed' : 'pointer',
-                  minWidth: '220px',
+                  backgroundColor: isAlreadyApplied(selectedJob.id)
+                    ? "#6c757d"
+                    : applyingJobId === selectedJob.id
+                    ? "#ccc"
+                    : "#ff69b4",
+                  color: "white",
+                  border: "none",
+                  padding: "16px 48px",
+                  borderRadius: "12px",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  cursor:
+                    applyingJobId === selectedJob.id ||
+                    isAlreadyApplied(selectedJob.id)
+                      ? "not-allowed"
+                      : "pointer",
+                  minWidth: isMobile ? "100%" : "220px",
                 }}
               >
                 {isAlreadyApplied(selectedJob.id)
-                  ? 'Already Applied'
+                  ? "Already Applied"
                   : applyingJobId === selectedJob.id
-                  ? 'Applying...'
-                  : 'Apply for Job'}
+                  ? "Applying..."
+                  : "Apply for Job"}
               </button>
             </div>
           </div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: isMobile
+              ? "1fr"
+              : "repeat(auto-fill, minmax(320px, 1fr))",
+            gap: isMobile ? "16px" : "24px",
+            maxWidth: "1400px",
+            margin: "0 auto",
+          }}
+        >
           {filteredJobs.length === 0 ? (
-            <p style={{ textAlign: 'center', gridColumn: '1 / -1', color: '#666', fontSize: '18px' }}>
+            <p
+              style={{
+                textAlign: "center",
+                gridColumn: "1 / -1",
+                color: "#666",
+                fontSize: "18px",
+              }}
+            >
               No jobs found matching your search.
             </p>
           ) : (
@@ -225,45 +341,68 @@ const JobsGrid = () => {
                 key={job.id}
                 onClick={() => setSelectedJob(job)}
                 style={{
-                  backgroundColor: 'white',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
-                  border: '2px solid #ffe4e1',
-                  cursor: 'pointer',
-                  position: 'relative',
+                  backgroundColor: "white",
+                  borderRadius: "16px",
+                  padding: isMobile ? "18px" : "24px",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+                  border: "2px solid #ffe4e1",
+                  cursor: "pointer",
+                  position: "relative",
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "16px",
+                  }}
+                >
                   <img
-                    src={job.companyLogo || job.logo || 'https://via.placeholder.com/48'}
+                    src={
+                      job.companyLogo ||
+                      job.logo ||
+                      "https://via.placeholder.com/48"
+                    }
                     alt="Company Logo"
-                    style={{ width: 48, height: 48, marginRight: 16, borderRadius: '8px' }}
+                    style={{
+                      width: 48,
+                      height: 48,
+                      marginRight: 16,
+                      borderRadius: "8px",
+                    }}
                   />
                   <div>
-                    <h3 style={{ margin: 0 }}>{job.jobTitle || job.title || 'Job Title'}</h3>
-                    <p style={{ color: '#ff69b4', margin: '4px 0 0' }}>
-                      {job.category || job.jobCategory || 'Category'}
+                    <h3 style={{ margin: 0 }}>
+                      {job.jobTitle || job.title || "Job Title"}
+                    </h3>
+                    <p style={{ color: "#ff69b4", margin: "4px 0 0" }}>
+                      {job.category || job.jobCategory || "Category"}
                     </p>
                   </div>
                 </div>
 
-                <p style={{ margin: '8px 0' }}>{job.type || '—'}</p>
-                <p style={{ fontWeight: 'bold', color: '#ff69b4' }}>{job.salary || 'Not specified'}</p>
-                <p style={{ color: '#555' }}>{job.experience || job.exp || 'Experience not specified'}</p>
+                <p style={{ margin: "8px 0" }}>{job.type || "—"}</p>
+                <p style={{ fontWeight: "bold", color: "#ff69b4" }}>
+                  {job.salary || "Not specified"}
+                </p>
+                <p style={{ color: "#555" }}>
+                  {job.experience || job.exp || "Experience not specified"}
+                </p>
 
                 {isAlreadyApplied(job.id) && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    background: '#28a745',
-                    color: 'white',
-                    padding: '4px 12px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "12px",
+                      right: "12px",
+                      background: "#28a745",
+                      color: "white",
+                      padding: "4px 12px",
+                      borderRadius: "12px",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                    }}
+                  >
                     Applied
                   </div>
                 )}

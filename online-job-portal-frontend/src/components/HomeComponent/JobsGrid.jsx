@@ -300,20 +300,20 @@ const JobsGrid = () => {
   // ── breakpoints ──────────────────────────────────────────────────────────
   const isMobile = windowWidth <= 480;
   const isTablet = windowWidth > 480 && windowWidth <= 768;
-  const isSmall  = windowWidth <= 768;
+  const isSmall = windowWidth <= 768;
 
   // ── state (UNTOUCHED) ────────────────────────────────────────────────────
-  const [searchTerm, setSearchTerm]       = useState('');
-  const [selectedJob, setSelectedJob]     = useState(null);
-  const [jobsData, setJobsData]           = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [error, setError]                 = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [jobsData, setJobsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [applyingJobId, setApplyingJobId] = useState(null);
-  const [appliedJobs, setAppliedJobs]     = useState(new Set());
+  const [appliedJobs, setAppliedJobs] = useState(new Set());
 
   // ── localStorage (UNTOUCHED) ─────────────────────────────────────────────
   const employeeId = localStorage.getItem("employeeId");
-  const role       = localStorage.getItem("role");
+  const role = localStorage.getItem("role");
 
   // ── effects (UNTOUCHED) ──────────────────────────────────────────────────
   useEffect(() => {
@@ -406,14 +406,16 @@ const JobsGrid = () => {
 
   // ── early returns (UNTOUCHED text) ───────────────────────────────────────
   if (loading) return <div style={{ textAlign: 'center', padding: '60px 20px', fontSize: isMobile ? '15px' : '18px' }}>Loading jobs...</div>;
-  if (error)   return <div style={{ textAlign: 'center', padding: '60px 20px', color: 'red', fontSize: isMobile ? '14px' : '16px' }}>{error}</div>;
+  if (error) return <div style={{ textAlign: 'center', padding: '60px 20px', color: 'red', fontSize: isMobile ? '14px' : '16px' }}>{error}</div>;
 
   // ─────────────────────────────────────────────────────────────────────────
   // RENDER
   // ─────────────────────────────────────────────────────────────────────────
+
   return (
     <div style={{
-      maxWidth: isMobile ? '100%' : isTablet ? '90%' : '1200px',
+      maxWidth: '100%',                    // ← important for mobile
+      width: '100%',
       margin: '0 auto',
       padding: isMobile ? '12px 10px' : isTablet ? '20px 16px' : '30px 24px',
       fontFamily: 'sans-serif',
@@ -431,7 +433,7 @@ const JobsGrid = () => {
         Search Jobs here...!!!
       </p>
 
-      {/* ── Search Input (UNTOUCHED colours) ──────────────────────────── */}
+      {/* ── Search Input — FIXED overflow ─────────────────────────────── */}
       <input
         type="text"
         placeholder="Search by job title or category..."
@@ -439,20 +441,23 @@ const JobsGrid = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         style={{
           width: '100%',
-          padding: isMobile ? '12px' : '14px',
+          maxWidth: '100%',                // ← prevents going outside
+          padding: isMobile ? '12px 14px' : '14px 16px',  // balanced padding
           fontSize: isMobile ? '14px' : '16px',
           border: '2px solid #ff69b4',
           borderRadius: '12px',
           marginBottom: '24px',
           boxSizing: 'border-box',
+          display: 'block',                // helps with layout
         }}
       />
 
       {/* ════════════════════════════════════════════════════════════════════
-          SELECTED JOB  —  detail view
+          SELECTED JOB — detail view
           ════════════════════════════════════════════════════════════════════ */}
       {selectedJob ? (
-        <div>
+        <div style={{ width: '100%', boxSizing: 'border-box' }}>
+
           {/* Back button */}
           <button
             onClick={() => setSelectedJob(null)}
@@ -478,14 +483,15 @@ const JobsGrid = () => {
             marginBottom: '20px',
             border: '2px solid #ffe4e1',
             boxSizing: 'border-box',
+            width: '100%',
           }}>
             <h2 style={{ color: '#ff69b4', fontSize: isMobile ? '17px' : '20px', marginTop: 0, marginBottom: '12px' }}>
               Company Details
             </h2>
-            <p style={{ fontWeight: '600', fontSize: isMobile ? '15px' : '17px', margin: '4px 0' }}>
+            <p style={{ fontWeight: '600', fontSize: isMobile ? '15px' : '17px', margin: '4px 0', wordBreak: 'break-word' }}>
               {selectedJob.companyName || selectedJob.company || 'Company Name'}
             </p>
-            <p style={{ color: '#666', fontSize: isMobile ? '13px' : '15px', margin: '4px 0' }}>
+            <p style={{ color: '#666', fontSize: isMobile ? '13px' : '15px', margin: '4px 0', wordBreak: 'break-word' }}>
               {selectedJob.location || selectedJob.companyAddress || 'Location not specified'}
             </p>
           </div>
@@ -499,31 +505,32 @@ const JobsGrid = () => {
             boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
             border: '2px solid #ffe4e1',
             boxSizing: 'border-box',
+            width: '100%',
           }}>
             <h2 style={{ color: '#ff69b4', fontSize: isMobile ? '17px' : '20px', marginTop: 0, marginBottom: '12px' }}>
               Job Details
             </h2>
 
-            {/* responsive grid of detail rows */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : 'repeat(3, 1fr)',
               gap: isMobile ? '8px' : '12px',
             }}>
               {[
-                { label: 'Title',      value: selectedJob.jobTitle || selectedJob.title || '—' },
-                { label: 'Category',   value: selectedJob.category || selectedJob.jobCategory || '—' },
-                { label: 'Type',       value: selectedJob.type || '—' },
-                { label: 'Salary',     value: selectedJob.salary || 'Not disclosed' },
+                { label: 'Title', value: selectedJob.jobTitle || selectedJob.title || '—' },
+                { label: 'Category', value: selectedJob.category || selectedJob.jobCategory || '—' },
+                { label: 'Type', value: selectedJob.type || '—' },
+                { label: 'Salary', value: selectedJob.salary || 'Not disclosed' },
                 { label: 'Experience', value: selectedJob.experience || selectedJob.exp || 'Not specified' },
               ].map((item) => (
                 <div key={item.label} style={{
                   backgroundColor: '#fafafa',
                   borderRadius: '10px',
                   padding: isMobile ? '10px 12px' : '12px 16px',
+                  wordBreak: 'break-word',
                 }}>
                   <span style={{ color: '#888', fontSize: isMobile ? '12px' : '13px', fontWeight: '600' }}>
-                    {item.label}:&nbsp;
+                    {item.label}: 
                   </span>
                   <span style={{ fontSize: isMobile ? '14px' : '15px', fontWeight: '500' }}>
                     {item.value}
@@ -542,17 +549,18 @@ const JobsGrid = () => {
             boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
             border: '2px solid #ffe4e1',
             boxSizing: 'border-box',
+            width: '100%',
           }}>
             <h2 style={{ color: '#ff69b4', fontSize: isMobile ? '17px' : '20px', marginTop: 0, marginBottom: '10px' }}>
-              Description &amp; Requirements
+              Description & Requirements
             </h2>
-            <p style={{ fontSize: isMobile ? '14px' : '15px', color: '#444', lineHeight: '1.6', margin: '0 0 16px' }}>
+            <p style={{ fontSize: isMobile ? '14px' : '15px', color: '#444', lineHeight: '1.6', margin: '0 0 16px', wordBreak: 'break-word' }}>
               {selectedJob.jobDescription || 'No description available.'}
             </p>
             <p style={{ fontWeight: '600', fontSize: isMobile ? '14px' : '15px', marginBottom: '6px', color: '#333' }}>
               Required Skills:
             </p>
-            <p style={{ fontSize: isMobile ? '14px' : '15px', color: '#555', margin: 0 }}>
+            <p style={{ fontSize: isMobile ? '14px' : '15px', color: '#555', margin: 0, wordBreak: 'break-word' }}>
               {selectedJob.skills || selectedJob.requiredSkills || "Not specified"}
             </p>
           </div>
@@ -588,12 +596,11 @@ const JobsGrid = () => {
             </button>
           </div>
         </div>
-
       ) : (
         /* ══════════════════════════════════════════════════════════════════
-            JOB CARDS  —  listing grid
+            JOB CARDS — listing grid
             ══════════════════════════════════════════════════════════════════ */
-        <div>
+        <div style={{ width: '100%', boxSizing: 'border-box' }}>
           {filteredJobs.length === 0 ? (
             <p style={{
               textAlign: 'center',
@@ -622,6 +629,7 @@ const JobsGrid = () => {
                     cursor: 'pointer',
                     position: 'relative',
                     boxSizing: 'border-box',
+                    overflow: 'hidden',           // ← helps prevent content overflow
                   }}
                 >
                   {/* Title */}
@@ -630,17 +638,18 @@ const JobsGrid = () => {
                     fontSize: isMobile ? '16px' : '18px',
                     margin: '0 0 8px',
                     paddingRight: isAlreadyApplied(job.id) ? '68px' : '0',
+                    wordBreak: 'break-word',
                   }}>
                     {job.jobTitle || job.title || 'Job Title'}
                   </h3>
 
                   {/* Category */}
-                  <p style={{ color: '#888', fontSize: isMobile ? '13px' : '14px', margin: '4px 0', fontStyle: 'italic' }}>
+                  <p style={{ color: '#888', fontSize: isMobile ? '13px' : '14px', margin: '4px 0', fontStyle: 'italic', wordBreak: 'break-word' }}>
                     {job.category || job.jobCategory || 'Category'}
                   </p>
 
                   {/* Type */}
-                  <p style={{ color: '#555', fontSize: isMobile ? '13px' : '14px', margin: '4px 0' }}>
+                  <p style={{ color: '#555', fontSize: isMobile ? '13px' : '14px', margin: '4px 0', wordBreak: 'break-word' }}>
                     {job.type || '—'}
                   </p>
 
@@ -650,7 +659,7 @@ const JobsGrid = () => {
                   </p>
 
                   {/* Experience */}
-                  <p style={{ color: '#777', fontSize: isMobile ? '12px' : '13px', margin: '4px 0 0' }}>
+                  <p style={{ color: '#777', fontSize: isMobile ? '12px' : '13px', margin: '4px 0 0', wordBreak: 'break-word' }}>
                     {job.experience || job.exp || 'Experience not specified'}
                   </p>
 
